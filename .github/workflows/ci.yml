@@ -48,7 +48,7 @@ jobs:
           cache: maven
 
       - name: Build common module
-        run: ./mvnw install -pl common -DskipTests -q
+        run: ./mvnw install -pl common -am -DskipTests -q
 
       - name: Run unit tests
         run: ./mvnw test -pl master
