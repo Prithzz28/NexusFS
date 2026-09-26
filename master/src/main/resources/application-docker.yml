@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/${POSTGRES_DB:dfs_metadata}
+    username: ${POSTGRES_USER:dfs_admin}
+    password: ${POSTGRES_PASSWORD:dfs_password}
+
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+dfs:
+  chunk-size-bytes: ${CHUNK_SIZE_BYTES:4194304}
+  replication-factor: ${REPLICATION_FACTOR:3}
+  heartbeat-interval-seconds: ${HEARTBEAT_INTERVAL_SECONDS:5}
+  node-failure-timeout-seconds: ${NODE_FAILURE_TIMEOUT_SECONDS:15}
+  max-file-size-bytes: ${MAX_FILE_SIZE_BYTES:5368709120}
+  upload-session-timeout-minutes: ${UPLOAD_SESSION_TIMEOUT_MINUTES:60}
+
+logging:
+  level:
+    com.dfs: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: WARN

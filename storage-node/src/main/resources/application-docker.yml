@@ -1,0 +1,11 @@
+storage:
+  node-id: ${NODE_ID:node-1}
+  storage-root: ${STORAGE_ROOT:/data/chunks}
+  capacity-bytes: ${CAPACITY_BYTES:10737418240}
+  master-url: ${MASTER_URL:http://master:8080}
+  heartbeat-interval-seconds: ${HEARTBEAT_INTERVAL_SECONDS:5}
+
+logging:
+  level:
+    com.dfs: INFO
+    org.springframework.web: INFO

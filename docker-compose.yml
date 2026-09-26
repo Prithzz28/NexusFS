@@ -1,0 +1,174 @@
+version: "3.9"
+
+services:
+  # ─── PostgreSQL ───────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: dfs-postgres
+    environment:
+      POSTGRES_DB: dfs_metadata
+      POSTGRES_USER: dfs_admin
+      POSTGRES_PASSWORD: dfs_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dfs_admin -d dfs_metadata"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - dfs-network
+
+  # ─── Redis ────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: dfs-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - dfs-network
+
+  # ─── Master Server ───────────────────────────────────────
+  master:
+    build:
+      context: .
+      dockerfile: master/Dockerfile
+    container_name: dfs-master
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      POSTGRES_DB: dfs_metadata
+      POSTGRES_USER: dfs_admin
+      POSTGRES_PASSWORD: dfs_password
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      CHUNK_SIZE_BYTES: 4194304
+      REPLICATION_FACTOR: 3
+      HEARTBEAT_INTERVAL_SECONDS: 5
+      NODE_FAILURE_TIMEOUT_SECONDS: 15
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - dfs-network
+
+  # ─── Storage Node 1 ──────────────────────────────────────
+  storage-node-1:
+    build:
+      context: .
+      dockerfile: storage-node/Dockerfile
+    container_name: dfs-storage-node-1
+    ports:
+      - "9001:9001"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      NODE_ID: node-1
+      STORAGE_ROOT: /data/chunks
+      CAPACITY_BYTES: 10737418240
+      MASTER_URL: http://master:8080
+      HEARTBEAT_INTERVAL_SECONDS: 5
+      SERVER_PORT: 9001
+    volumes:
+      - storage1_data:/data/chunks
+    depends_on:
+      master:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9001/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - dfs-network
+
+  # ─── Storage Node 2 ──────────────────────────────────────
+  storage-node-2:
+    build:
+      context: .
+      dockerfile: storage-node/Dockerfile
+    container_name: dfs-storage-node-2
+    ports:
+      - "9002:9002"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      NODE_ID: node-2
+      STORAGE_ROOT: /data/chunks
+      CAPACITY_BYTES: 10737418240
+      MASTER_URL: http://master:8080
+      HEARTBEAT_INTERVAL_SECONDS: 5
+      SERVER_PORT: 9002
+    volumes:
+      - storage2_data:/data/chunks
+    depends_on:
+      master:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9002/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - dfs-network
+
+  # ─── Storage Node 3 ──────────────────────────────────────
+  storage-node-3:
+    build:
+      context: .
+      dockerfile: storage-node/Dockerfile
+    container_name: dfs-storage-node-3
+    ports:
+      - "9003:9003"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      NODE_ID: node-3
+      STORAGE_ROOT: /data/chunks
+      CAPACITY_BYTES: 10737418240
+      MASTER_URL: http://master:8080
+      HEARTBEAT_INTERVAL_SECONDS: 5
+      SERVER_PORT: 9003
+    volumes:
+      - storage3_data:/data/chunks
+    depends_on:
+      master:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9003/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - dfs-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  storage1_data:
+  storage2_data:
+  storage3_data:
+
+networks:
+  dfs-network:
+    driver: bridge

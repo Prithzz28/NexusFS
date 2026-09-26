@@ -1,0 +1,32 @@
+server:
+  port: 9001
+
+spring:
+  application:
+    name: dfs-storage-node
+
+# Storage node configuration
+storage:
+  node-id: node-1
+  storage-root: /tmp/dfs/storage/node-1
+  capacity-bytes: 10737418240    # 10 GB
+  master-url: http://localhost:8080
+  heartbeat-interval-seconds: 5
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    com.dfs: DEBUG
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
