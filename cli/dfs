@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────
-# DFS CLI Client
-# Executable command-line interface for the Distributed File Storage System
+# NexusFS CLI Client
+# Executable command-line interface for the NexusFS Distributed File Storage System
 # Supports: login, put, get, ls, rm, status, nodes
 # ─────────────────────────────────────────────────────────────────────
 
@@ -319,7 +319,7 @@ cmd_rm() {
 cmd_status() {
     local response
     response=$(api_call_no_auth GET "/api/status")
-    echo -e "${CYAN}DFS Cluster Status${NC}"
+    echo -e "${CYAN}NexusFS Cluster Status${NC}"
     echo "$response" | python3 -m json.tool 2>/dev/null || echo "$response"
 
     echo
@@ -356,13 +356,13 @@ cmd_logout() {
 
 cmd_help() {
     cat <<EOF
-${CYAN}DFS CLI${NC} - Distributed File Storage Client
+${CYAN}NexusFS CLI${NC} - Distributed File Storage Client
 
 ${YELLOW}Usage:${NC}
-  dfs <command> [options]
+  nexus <command> [options]   (or dfs <command>)
 
 ${YELLOW}Commands:${NC}
-  login [username] [password]           Login to the DFS cluster
+  login [username] [password]           Login to the NexusFS cluster
   register [user] [email] [password]    Register a new account
   put <file>                            Upload a file
   get <file-id> [output-path]           Download a file

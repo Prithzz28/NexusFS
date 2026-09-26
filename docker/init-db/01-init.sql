@@ -1,4 +1,4 @@
--- DFS Metadata Database Initialization
+-- NexusFS Metadata Database Initialization
 -- This script runs on first PostgreSQL startup
 
 -- Enable UUID extension

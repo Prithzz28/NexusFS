@@ -1,4 +1,4 @@
-name: DFS CI Pipeline
+name: NexusFS CI Pipeline
 
 on:
   push:

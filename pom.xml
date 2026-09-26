@@ -15,8 +15,8 @@
     <artifactId>distributed-file-storage</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Distributed File Storage System</name>
-    <description>Production-grade distributed file storage system with chunking, replication, and fault tolerance</description>
+    <name>NexusFS - Distributed File Storage System</name>
+    <description>NexusFS: Production-grade distributed file storage system with chunking, replication, and fault tolerance</description>
 
     <modules>
         <module>common</module>

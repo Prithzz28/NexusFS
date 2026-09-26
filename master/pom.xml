@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>master</artifactId>
-    <name>DFS Master Server</name>
+    <name>NexusFS Master Server</name>
     <description>Master/Coordinator service for metadata management and orchestration</description>
 
     <dependencies>

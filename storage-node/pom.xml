@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>storage-node</artifactId>
-    <name>DFS Storage Node</name>
+    <name>NexusFS Storage Node</name>
     <description>Storage node service responsible for chunk storage and retrieval</description>
 
     <dependencies>

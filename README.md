@@ -1,6 +1,6 @@
-# Distributed File Storage System
+# NexusFS — Distributed File Storage System
 
-A production-grade distributed file storage platform built with Java 21, Spring Boot 3, PostgreSQL, and Redis. Implements chunked file storage, replication, fault tolerance, and automatic recovery — inspired by HDFS and object-storage architectures.
+NexusFS is a production-grade distributed file storage platform built with Java 21, Spring Boot 3, PostgreSQL, and Redis. Implements chunked file storage, replication, fault tolerance, and automatic recovery — inspired by HDFS and modern object-storage architectures.
 
 ## Architecture
 
@@ -74,11 +74,12 @@ A production-grade distributed file storage platform built with Java 21, Spring 
 ## Project Structure
 
 ```
-distributed-file-storage/
+nexusfs/
 ├── common/          # Shared DTOs, enums, constants, exceptions
 ├── master/          # Coordinator: metadata, orchestration, API gateway
 ├── storage-node/    # Chunk storage service (filesystem-based)
-├── docker/          # Docker support files
+├── docker/          # Docker support files (Postgres init, Prometheus)
+├── cli/             # NexusFS executable command-line client
 ├── docker-compose.yml
 └── pom.xml          # Parent POM
 ```
@@ -125,7 +126,7 @@ open http://localhost:8080/swagger-ui.html
 
 ### CLI Client Usage
 
-The DFS CLI is located in `cli/dfs`. Make it available in your path or run it directly:
+The NexusFS CLI is located in `cli/dfs` (or `cli/nexus`). Make it available in your path or run it directly:
 
 ```bash
 # Register a new account

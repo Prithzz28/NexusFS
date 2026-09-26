@@ -51,7 +51,7 @@ class ChunkStorageServiceTest {
         @DisplayName("Should successfully store a chunk and compute SHA-256")
         void shouldStoreChunkAndReturnChecksum() throws Exception {
             String chunkId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
-            byte[] data = "Hello, Distributed File Storage!".getBytes(StandardCharsets.UTF_8);
+            byte[] data = "Hello, NexusFS!".getBytes(StandardCharsets.UTF_8);
 
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             String expectedChecksum = HexFormat.of().formatHex(md.digest(data));

@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>common</artifactId>
-    <name>DFS Common</name>
+    <name>NexusFS Common</name>
     <description>Shared DTOs, enums, constants, and exceptions</description>
 
     <dependencies>
