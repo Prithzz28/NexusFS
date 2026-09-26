@@ -38,6 +38,9 @@ dfs:
   node-failure-timeout-seconds: 15
   max-file-size-bytes: 5368709120    # 5 GB
   upload-session-timeout-minutes: 60
+  jwt:
+    secret: dev-secret-key-must-be-at-least-256-bits-long-for-hs256-algorithm!!
+    expiration-ms: 86400000          # 24 hours
 
 # Actuator
 management:

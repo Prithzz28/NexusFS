@@ -21,8 +21,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DfsException.class)
     public ResponseEntity<ApiResponse<Void>> handleDfsException(DfsException ex, HttpServletRequest request) {
         log.warn("DFS error on {}: [{}] {}", request.getRequestURI(), ex.getErrorCode(), ex.getMessage());
-        return ResponseEntity.badRequest()
+        HttpStatus status = resolveStatus(ex);
+        return ResponseEntity.status(status)
                 .body(ApiResponse.error(ex.getErrorCode(), ex.getMessage()));
+    }
+
+    private HttpStatus resolveStatus(DfsException ex) {
+        return switch (ex.getErrorCode()) {
+            case "AUTHENTICATION_FAILED" -> HttpStatus.UNAUTHORIZED;
+            case "DUPLICATE_RESOURCE" -> HttpStatus.CONFLICT;
+            case "NOT_FOUND", "FILE_NOT_FOUND" -> HttpStatus.NOT_FOUND;
+            case "FORBIDDEN" -> HttpStatus.FORBIDDEN;
+            default -> HttpStatus.BAD_REQUEST;
+        };
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
