@@ -1,0 +1,35 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: 'dfs-master'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['master:8080']
+        labels:
+          application: 'dfs-master'
+
+  - job_name: 'dfs-storage-node-1'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['storage-node-1:9001']
+        labels:
+          application: 'dfs-storage-node'
+          node_id: 'node-1'
+
+  - job_name: 'dfs-storage-node-2'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['storage-node-2:9002']
+        labels:
+          application: 'dfs-storage-node'
+          node_id: 'node-2'
+
+  - job_name: 'dfs-storage-node-3'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['storage-node-3:9003']
+        labels:
+          application: 'dfs-storage-node'
+          node_id: 'node-3'

@@ -161,6 +161,39 @@ services:
       start_period: 20s
     networks:
       - dfs-network
+  # ─── Prometheus ──────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: dfs-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - dfs-network
+
+  # ─── Grafana ─────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: dfs-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - dfs-network
 
 volumes:
   postgres_data:
@@ -168,7 +201,10 @@ volumes:
   storage1_data:
   storage2_data:
   storage3_data:
+  prometheus_data:
+  grafana_data:
 
 networks:
   dfs-network:
     driver: bridge
+

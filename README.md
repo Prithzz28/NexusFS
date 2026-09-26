@@ -104,34 +104,100 @@ This starts:
 - **Storage Node 1** on `http://localhost:9001`
 - **Storage Node 2** on `http://localhost:9002`
 - **Storage Node 3** on `http://localhost:9003`
+- **Prometheus** on `http://localhost:9090`
+- **Grafana** on `http://localhost:3000` (admin/admin)
 
 ### Verify
 
 ```bash
-# Master status
-curl http://localhost:8080/api/status
+# Cluster status & node overview
+curl http://localhost:8080/api/nodes
 
-# Actuator health
-curl http://localhost:8080/actuator/health
+# Actuator Prometheus metrics
+curl http://localhost:8080/actuator/prometheus
 
 # Storage node health
-curl http://localhost:9001/internal/health
+curl http://localhost:9001/actuator/health
 
 # Swagger UI
 open http://localhost:8080/swagger-ui.html
 ```
 
-### Build Locally
+### CLI Client Usage
+
+The DFS CLI is located in `cli/dfs`. Make it available in your path or run it directly:
 
 ```bash
-./mvnw clean package -DskipTests
+# Register a new account
+./cli/dfs register alice alice@example.com Secret123!
+
+# Login
+./cli/dfs login alice Secret123!
+
+# Check cluster status and storage nodes
+./cli/dfs status
+./cli/dfs nodes
+
+# Upload a file (automatically chunked, placed, and replicated)
+./cli/dfs put ./dataset.csv
+
+# List files
+./cli/dfs ls
+
+# Download a file by ID (automatically reassembled from chunk replicas)
+./cli/dfs get <file-id> ./downloaded_dataset.csv
+
+# Delete a file
+./cli/dfs rm <file-id>
+
+# Logout
+./cli/dfs logout
 ```
 
-### Run Tests
+### Build & Run Tests Locally
 
 ```bash
+# Build all modules
+./mvnw clean package -DskipTests
+
+# Run full automated test suite (52 tests across Master & Storage Node)
 ./mvnw test
 ```
+
+## API Reference
+
+### Authentication (`/api/auth`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/auth/register` | Register new user account |
+| `POST` | `/api/auth/login` | Login and obtain JWT token |
+
+### File Management (`/api/files`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/files` | Register new file metadata |
+| `GET` | `/api/files` | List authenticated user's files (paginated) |
+| `GET` | `/api/files/{id}` | Get detailed file metadata and chunks |
+| `GET` | `/api/files/search?query=...` | Search files by name |
+| `PATCH` | `/api/files/{id}/rename` | Rename file |
+| `DELETE` | `/api/files/{id}` | Soft-delete file |
+| `POST` | `/api/files/{id}/restore` | Restore soft-deleted file |
+
+### Chunked Transfer (`/api/files`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/files/init-upload` | Initialize chunked upload session & node allocations |
+| `POST` | `/api/files/{sessionId}/chunks/{index}` | Upload specific chunk binary with SHA-256 verification |
+| `POST` | `/api/files/{sessionId}/complete` | Verify all chunks and activate file |
+| `GET` | `/api/files/{id}/download` | Stream complete file reassembled from chunks |
+| `GET` | `/api/files/{id}/manifest` | Get chunk download manifest |
+
+### Cluster Nodes (`/api/nodes`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/nodes` | List active storage nodes and cluster capacity |
+| `POST` | `/api/nodes/register` | Storage node registration (self-enrollment) |
+| `POST` | `/internal/nodes/heartbeat` | Storage node periodic heartbeat |
 
 ## Configuration
 
@@ -145,22 +211,21 @@ All configuration is externalized via `application.yml` and environment variable
 | `NODE_FAILURE_TIMEOUT_SECONDS` | `15` | Time before marking node offline |
 | `MAX_FILE_SIZE_BYTES` | `5368709120` (5 GB) | Maximum upload file size |
 
-See `.env.example` for the complete list.
-
 ## Development Phases
 
 - [x] **Phase 1** — Project foundation, Docker Compose, health checks
-- [ ] **Phase 2** — Authentication (JWT, roles, Spring Security)
-- [ ] **Phase 3** — File metadata, database schema, CRUD
-- [ ] **Phase 4** — Storage node chunk operations, master ↔ node communication
-- [ ] **Phase 5** — Chunked upload/download with streaming
-- [ ] **Phase 6** — Replication, checksums, concurrent transfers
-- [ ] **Phase 7** — Heartbeats, failure detection, auto-recovery
-- [ ] **Phase 8** — Redis caching, rate limiting, distributed locks
-- [ ] **Phase 9** — Observability (Actuator, Prometheus, Grafana)
-- [ ] **Phase 10** — Integration tests, CI/CD
-- [ ] **Phase 11** — CLI client, optional React dashboard
+- [x] **Phase 2** — Authentication (JWT, roles, Spring Security)
+- [x] **Phase 3** — File metadata, database schema, CRUD
+- [x] **Phase 4** — Storage node chunk operations, master ↔ node communication
+- [x] **Phase 5** — Chunked upload/download with streaming & placement
+- [x] **Phase 6** — Replication, checksums, concurrent transfers
+- [x] **Phase 7** — Heartbeats, failure detection, auto-recovery & self-healing
+- [x] **Phase 8** — Redis caching, rate limiting, distributed locks
+- [x] **Phase 9** — Observability (Actuator, Prometheus, Grafana)
+- [x] **Phase 10** — Integration tests, GitHub Actions CI/CD pipeline
+- [x] **Phase 11** — CLI client (`cli/dfs`) & Admin cluster monitoring
 
 ## License
 
 MIT
+

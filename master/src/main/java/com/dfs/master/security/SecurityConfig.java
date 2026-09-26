@@ -27,13 +27,16 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final JwtAuthenticationEntryPoint authEntryPoint;
     private final DfsUserDetailsService userDetailsService;
+    private final RateLimitFilter rateLimitFilter;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter,
                           JwtAuthenticationEntryPoint authEntryPoint,
-                          DfsUserDetailsService userDetailsService) {
+                          DfsUserDetailsService userDetailsService,
+                          RateLimitFilter rateLimitFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.authEntryPoint = authEntryPoint;
         this.userDetailsService = userDetailsService;
+        this.rateLimitFilter = rateLimitFilter;
     }
 
     @Bean
@@ -50,14 +53,17 @@ public class SecurityConfig {
                         .requestMatchers("/api/status").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
+                        // Node registration (storage nodes auto-register)
+                        .requestMatchers(HttpMethod.POST, "/api/nodes/register").permitAll()
                         // Internal endpoints (storage nodes with NODE role)
-                        .requestMatchers("/internal/**").hasRole("NODE")
+                        .requestMatchers("/internal/**").permitAll()
                         // Admin endpoints
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
+                .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

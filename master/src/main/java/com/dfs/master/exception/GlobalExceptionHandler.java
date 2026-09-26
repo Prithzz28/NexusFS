@@ -32,6 +32,7 @@ public class GlobalExceptionHandler {
             case "DUPLICATE_RESOURCE" -> HttpStatus.CONFLICT;
             case "NOT_FOUND", "FILE_NOT_FOUND" -> HttpStatus.NOT_FOUND;
             case "FORBIDDEN" -> HttpStatus.FORBIDDEN;
+            case "INSUFFICIENT_STORAGE" -> HttpStatus.INSUFFICIENT_STORAGE;
             default -> HttpStatus.BAD_REQUEST;
         };
     }
